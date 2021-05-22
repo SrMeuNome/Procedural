@@ -9,8 +9,11 @@ public class Gerador : MonoBehaviour
     public int Size;
     private int _size = 0;
 
-    public int MaxAutRelevo;
+    public int MaxAltRelevo;
     public int MaxLarRelevo;
+
+    public int MinAltRelevo;
+    public int MinLarRelevo;
 
     //Tilemap é onde fica localizado os Tile Base
     public Tilemap tileTerra;
@@ -25,32 +28,56 @@ public class Gerador : MonoBehaviour
     public enum TileType
     {
         Solo,
-        Agua
+        Agua,
+        Indefinido
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        int controladorAlt = 0;
+        TileType beforeAuxType = TileType.Indefinido;
         while (_size <= Size)
         {
-            TileType auxTipe = Random.Range(0, 10) < 5? TileType.Agua : TileType.Solo;
+            int auxAlt = Random.Range(MinAltRelevo, MaxAltRelevo);
+            int auxLar = Random.Range(MinLarRelevo, MaxLarRelevo);
 
-            TileBase baseAuxTopo;
-            TileBase baseAuxinferior;
+            TileType auxType = Random.Range(0, 10) < 5? TileType.Agua : TileType.Solo;
 
-            if(auxTipe == TileType.Agua)
+            TileBase baseAuxTopo = terraTopo;
+            TileBase baseAuxinferior = terra;
+
+            if (auxType == TileType.Agua)
             {
                 baseAuxTopo = aguaTopo;
                 baseAuxinferior = agua;
+                if(beforeAuxType == TileType.Solo)
+                {
+                    auxAlt = controladorAlt;
+                }
+
+                if(beforeAuxType == TileType.Agua)
+                {
+                    auxType = TileType.Solo;
+                }
             }
-            else//if(auxTipe == TileType.Solo)
+            
+            if(auxType == TileType.Solo)
             {
                 baseAuxTopo = terraTopo;
                 baseAuxinferior = terra;
+                if (beforeAuxType == TileType.Agua && auxAlt < controladorAlt)
+                {
+                    auxAlt = controladorAlt;
+                }
             }
 
-            _size = GerarRelevo(Random.Range(0, MaxLarRelevo), Random.Range(0, MaxAutRelevo), _size, 0, baseAuxTopo, baseAuxinferior, auxTipe);
-            
+            GerarRelevo(auxLar, auxAlt, 0, baseAuxTopo, baseAuxinferior, auxType);
+
+            controladorAlt = auxAlt;
+            beforeAuxType = auxType;
+
+
             if (_size > Size)
             {
                 //tileTerra.
@@ -64,13 +91,13 @@ public class Gerador : MonoBehaviour
         
     }
 
-    public int GerarRelevo(int w, int h, int x, int y, TileBase superficie, TileBase inferior, TileType tileType)
+    public void GerarRelevo(int w, int h, int y, TileBase superficie, TileBase inferior, TileType tileType)
     {
         TileBase aux;
         for(int i = y; i < h+y; i++)
         {
             //Largura mais a posição em x
-            for(int j = x; j < w+x; j++)
+            for(int j = _size; j < w+_size; j++)
             {
                 //Altura mais a posição em y
                 if (i == h+y - 1) aux = superficie;
@@ -83,6 +110,6 @@ public class Gerador : MonoBehaviour
             }
         }
         //returna a ultima cordenada em X
-        return x + w;
+        _size += w;
     }
 }

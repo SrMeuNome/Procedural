@@ -7,6 +7,9 @@ public class Jump : MonoBehaviour
     private float JumpStrong { get; set; } = 20;
     private string JumpKey { get; set; } = "space";
     private bool isJump { get; set; } = false;
+    private int jumps { get; set; } = 2;
+
+    public bool doubleJump;
 
     public Vector2 StartPoint;
     public Vector2 EndPoint;
@@ -41,17 +44,27 @@ public class Jump : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(JumpKey) && isJump)
-        {
-            rb.velocity = new Vector2(0, JumpStrong);
-            //rb.AddRelativeForce(new Vector2(0, JumpStrong * Time.smoothDeltaTime), ForceMode2D.Impulse);
-        }
+        
     }
 
     void FixedUpdate()
     {
         ColisionJump("chao");
         ColisionJump("agua");
+
+        if (Input.GetKeyDown(JumpKey) && isJump)
+        {
+            if (doubleJump && jumps > 0)
+            {
+                jumps -= 1;
+                rb.AddForce(new Vector2(0, JumpStrong), ForceMode2D.Impulse);
+            }
+            else if (!doubleJump)
+            {
+                rb.AddForce(new Vector2(0, JumpStrong), ForceMode2D.Impulse);
+            }
+            //rb.AddRelativeForce(new Vector2(0, JumpStrong * Time.smoothDeltaTime), ForceMode2D.Impulse);
+        }
     }
 
     private void ColisionJump(string tag)
@@ -64,11 +77,18 @@ public class Jump : MonoBehaviour
             if (Hits.collider.CompareTag(tag))
             {
                 isJump = true;
+                if (doubleJump)
+                {
+                    jumps = 2;
+                }
             }
         }
         else
         {
-            isJump = false;
+            if (!doubleJump)
+            {
+                isJump = false;
+            }
         }
     }
 }
