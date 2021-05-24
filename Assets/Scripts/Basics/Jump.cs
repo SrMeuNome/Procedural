@@ -57,6 +57,7 @@ public class Jump : MonoBehaviour
             if (doubleJump && jumps > 0)
             {
                 jumps -= 1;
+                rb.velocity = new Vector2(0, 0);
                 rb.AddForce(new Vector2(0, JumpStrong), ForceMode2D.Impulse);
             }
             else if (!doubleJump)

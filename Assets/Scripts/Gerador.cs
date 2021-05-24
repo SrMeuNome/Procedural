@@ -5,6 +5,11 @@ using UnityEngine.Tilemaps;
 
 public class Gerador : MonoBehaviour
 {
+    //Se a celula for preenchida e não tiver nada em cima ela será uma celula de topo do tipo correspondente
+    //Se a celula for preenchida e não tiver nenhum vizinho preenchido a mesma passará a não ser preenchida
+    //Se a celula for preenchida com um determinado tipo X e a maior parte dos vizinhos for preenchidos com o tipo Y a celula se torna do tipo Y
+    //Se a celula for preenchida com um tipo X e tiver dois vizinho ou menos com o tipo Y a celula se manterá com o tipo X
+
     //Tamanho do mapa
     public int Size;
     private int _size = 0;
@@ -25,6 +30,16 @@ public class Gerador : MonoBehaviour
     public TileBase aguaTopo;
     public TileBase agua;
 
+    struct bioma
+    {
+        TileBase soloTopo;
+        TileBase solo;
+        TileBase aguaTopo;
+        TileBase agua;
+        bool temAgua;
+        int tamanho;
+    }
+
     public enum TileType
     {
         Solo,
@@ -42,7 +57,7 @@ public class Gerador : MonoBehaviour
             int auxAlt = Random.Range(MinAltRelevo, MaxAltRelevo);
             int auxLar = Random.Range(MinLarRelevo, MaxLarRelevo);
 
-            TileType auxType = Random.Range(0, 10) < 5? TileType.Agua : TileType.Solo;
+            TileType auxType = Random.Range(0, 10) < 1? TileType.Agua : TileType.Solo;
 
             TileBase baseAuxTopo = terraTopo;
             TileBase baseAuxinferior = terra;
@@ -72,16 +87,19 @@ public class Gerador : MonoBehaviour
                 }
             }
 
-            GerarRelevo(auxLar, auxAlt, 0, baseAuxTopo, baseAuxinferior, auxType);
+            if (_size + auxLar > Size)
+            {
+                auxLar = Size - _size;
+                GerarRelevo(auxLar, auxAlt, 0, baseAuxTopo, baseAuxinferior, auxType);
+                break;
+            }
+            else
+            {
+                GerarRelevo(auxLar, auxAlt, 0, baseAuxTopo, baseAuxinferior, auxType);
+            }
 
             controladorAlt = auxAlt;
             beforeAuxType = auxType;
-
-
-            if (_size > Size)
-            {
-                //tileTerra.
-            }
         }
     }
 
@@ -109,7 +127,7 @@ public class Gerador : MonoBehaviour
                 if (tileType == TileType.Agua) tileAgua.SetTile(new Vector3Int(j, i, 0), aux);
             }
         }
-        //returna a ultima cordenada em X
+        //retorna a ultima cordenada em X
         _size += w;
     }
 }
