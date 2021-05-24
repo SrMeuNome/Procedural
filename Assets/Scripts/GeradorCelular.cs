@@ -59,7 +59,7 @@ public class GeradorCelular : MonoBehaviour
         {
             for (int j = startPosition; j < width; j++)
             {
-                int sortTilePosition = Random.Range(-listTileBase.Count + 1, listTileBase.Count);
+                int sortTilePosition = Random.Range(-1, listTileBase.Count);
 
                 //Atribuindo tilebase sotiada
                 if (sortTilePosition >= 0)
@@ -80,11 +80,6 @@ public class GeradorCelular : MonoBehaviour
                 if(IsAroundVoid(tilemapBase, j, i))
                 {
                     tilemapAux.SetTile(new Vector3Int(j, i, 0), null);
-                }
-
-                if(IsVoidAndHasAroundRepeat(tilemapBase, j, i) != null)
-                {
-                    tilemapAux.SetTile(new Vector3Int(j, i, 0), IsVoidAndHasAroundRepeat(tilemapBase, j, i));
                 }
 
                 if(HasThreeOrMore(tilemapBase, j, i) != null)
@@ -148,7 +143,7 @@ public class GeradorCelular : MonoBehaviour
         }
     }
 
-    private TileBase IsVoidAndHasAroundRepeat(Tilemap tilemap, int x, int y)
+    /*private TileBase IsVoidAndHasAroundRepeat(Tilemap tilemap, int x, int y)
     {
         if(!tilemap.HasTile(new Vector3Int(x, y + 1, 0)))
         {
@@ -186,7 +181,7 @@ public class GeradorCelular : MonoBehaviour
         {
             return null;
         }
-    }
+    }*/
 
     private TileBase HasThreeOrMore(Tilemap tilemap, int x, int y)
     {
@@ -210,12 +205,22 @@ public class GeradorCelular : MonoBehaviour
             List<TileBase> auxListCount = auxListTileBase.FindAll((tile) => { 
                 if(tile != null)
                 {
-                    return tile.Equals(auxListTileBase[i]);
+                    TileBaseGroup auxTileDefaultGroup = listTileBase.Find((tileAux) =>
+                    tileAux.tileDefault.Equals(tile)
+                    || tileAux.tileTop.Equals(tile));
+
+                    if (auxTileDefaultGroup != null)
+                    {
+                        TileBase auxTileDefault = auxTileDefaultGroup.tileDefault;
+                        TileBase auxTileTop = auxTileDefaultGroup.tileTop;
+                        return (tile.Equals(auxTileDefault) || tile.Equals(auxTileTop));
+                    }
                 }
 
                 return false;
             });
-            if(auxListCount != null)
+
+            if (auxListCount != null)
             {
                 if (auxListCount.Count >= 3)
                 {
