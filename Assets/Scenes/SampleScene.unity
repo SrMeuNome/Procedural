@@ -965,7 +965,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   width: 300
-  height: 10
+  height: 3
   startPosition: 0
   tilemapBase: {fileID: 753392145}
   tilemapAux: {fileID: 378729401}

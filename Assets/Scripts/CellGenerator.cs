@@ -32,7 +32,7 @@ public class CellGenerator : MonoBehaviour
     {
         TileBaseSort();
         //Smooth();
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < 10; i++)
         {
             Smooth();
         }
@@ -41,6 +41,10 @@ public class CellGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        /*if (Input.GetKeyDown(KeyCode.K))
+        {
+            Smooth();
+        }*/
         /*if (!run)
         {
             print("Rodando");
@@ -73,24 +77,44 @@ public class CellGenerator : MonoBehaviour
         {
             for (int j = startPosition; j < width; j++)
             {
-                if(IsAroundVoid(tilemapBase, j, i))
+                if (IsAroundVoid(tilemapBase, j, i))
                 {
                     tilemapAux.SetTile(new Vector3Int(j, i, 0), null);
-                } else if(HasThreeOrMore(tilemapBase, j, i) != null)
+                }
+                else if (HasThreeOrMore(tilemapBase, j, i) != null)
                 {
                     tilemapAux.SetTile(new Vector3Int(j, i, 0), HasThreeOrMore(tilemapBase, j, i));
-                } else
+                }
+                else if (HasTwoOrMore(tilemapBase, j, i))
+                {
+                    TileBase auxSort = HasTwoOrMoreSort(tilemapBase, j, i);
+                    if (auxSort != null)
+                    {
+                        tilemapAux.SetTile(new Vector3Int(j, i, 0), auxSort);
+                    }
+                    else
+                    {
+                        tilemapAux.SetTile(new Vector3Int(j, i, 0), tilemapBase.GetTile(new Vector3Int(j, i, 0)));
+                    }
+
+                }
+                else
                 {
                     tilemapAux.SetTile(new Vector3Int(j, i, 0), tilemapBase.GetTile(new Vector3Int(j, i, 0)));
                 }
-
+            }
+        }
+        for (int i = startPosition; i < height; i++)
+        {
+            for (int j = startPosition; j < width; j++)
+            {
                 if (tilemapAux.HasTile(new Vector3Int(j, i, 0)))
                 {
-                    if (IsTop(tilemapBase, j, i))
+                    if (IsTop(tilemapAux, j, i))
                     {
                         TileBaseGroup auxTileSetTopGroup = listTileBase.Find((tile) =>
-                        tile.tileDefault.Equals(tilemapBase.GetTile(new Vector3Int(j, i, 0)))
-                        || tile.tileTop.Equals(tilemapBase.GetTile(new Vector3Int(j, i, 0))));
+                        tile.tileDefault.Equals(tilemapAux.GetTile(new Vector3Int(j, i, 0)))
+                        || tile.tileTop.Equals(tilemapAux.GetTile(new Vector3Int(j, i, 0))));
 
                         if (auxTileSetTopGroup != null)
                         {
@@ -101,8 +125,8 @@ public class CellGenerator : MonoBehaviour
                     else
                     {
                         TileBaseGroup auxTileSetTopGroup = listTileBase.Find((tile) =>
-                        tile.tileDefault.Equals(tilemapBase.GetTile(new Vector3Int(j, i, 0)))
-                        || tile.tileTop.Equals(tilemapBase.GetTile(new Vector3Int(j, i, 0))));
+                        tile.tileDefault.Equals(tilemapAux.GetTile(new Vector3Int(j, i, 0)))
+                        || tile.tileTop.Equals(tilemapAux.GetTile(new Vector3Int(j, i, 0))));
 
                         if (auxTileSetTopGroup != null)
                         {
@@ -111,12 +135,6 @@ public class CellGenerator : MonoBehaviour
                         }
                     }
                 }
-            }
-        }
-        for (int i = startPosition; i < height; i++)
-        {
-            for (int j = startPosition; j < width; j++)
-            {
                 tilemapBase.SetTile(new Vector3Int(j, i, 0), tilemapAux.GetTile(new Vector3Int(j, i, 0)));
                 tilemapAux.SetTile(new Vector3Int(j, i, 0), null);
             }
@@ -133,7 +151,12 @@ public class CellGenerator : MonoBehaviour
 
         if (!top && !bottom && !right && !left)
         {
-            return true;
+            int sort = Random.Range(0, 100);
+            if (sort >= 95)
+            {
+                return true;
+            }
+            return false;
         }
         else
         {
@@ -141,67 +164,21 @@ public class CellGenerator : MonoBehaviour
         }
     }
 
-    /*private TileBase IsVoidAndHasAroundRepeat(Tilemap tilemap, int x, int y)
+    private bool HasTwoOrMore(Tilemap tilemap, int x, int y)
     {
-        if(!tilemap.HasTile(new Vector3Int(x, y + 1, 0)))
-        {
-            List<TileBase> auxListTileBase = new List<TileBase>();
-            TileBase repeatedTileBase = null;
-
-            auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x, y + 1, 0)));
-            auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x, y - 1, 0)));
-            auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x + 1, y, 0)));
-            auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x - 1, y, 0)));
-
-            for (int i = 0; i < auxListTileBase.Count; i++)
-            {
-                List<TileBase> auxListCount = auxListTileBase.FindAll((tile) => {
-                    if (tile != null)
-                    {
-                        return tile.Equals(auxListTileBase[i]);
-                    }
-
-                    return false;
-                });
-                if (auxListCount != null)
-                {
-                    if (auxListCount.Count >= 2)
-                    {
-                        repeatedTileBase = auxListTileBase[i];
-                        break;
-                    }
-                }
-            }
-
-            return repeatedTileBase;
-        }
-        else
-        {
-            return null;
-        }
-    }*/
-
-    private TileBase HasThreeOrMore(Tilemap tilemap, int x, int y)
-    {
-        /*
-         * 0: Top
-         * 1: Bottom
-         * 2: Right
-         * 3: Left
-        */
-
         List<TileBase> auxListTileBase = new List<TileBase>();
-        TileBase repeatedTileBase = null;
+        bool repeatedTileBase = false;
 
         auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x, y + 1, 0)));
         auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x, y - 1, 0)));
         auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x + 1, y, 0)));
         auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x - 1, y, 0)));
 
-        for(int i = 0; i < auxListTileBase.Count; i++)
+        for (int i = 0; i < auxListTileBase.Count; i++)
         {
-            List<TileBase> auxListCount = auxListTileBase.FindAll((tile) => { 
-                if(tile != null)
+            List<TileBase> auxListCount = auxListTileBase.FindAll((tile) =>
+            {
+                if (tile != null && auxListTileBase[i] != null)
                 {
                     TileBaseGroup auxTileDefaultGroup = listTileBase.Find((tileAux) =>
                     tileAux.tileDefault.Equals(tile)
@@ -211,7 +188,99 @@ public class CellGenerator : MonoBehaviour
                     {
                         TileBase auxTileDefault = auxTileDefaultGroup.tileDefault;
                         TileBase auxTileTop = auxTileDefaultGroup.tileTop;
-                        return (tile.Equals(auxTileDefault) || tile.Equals(auxTileTop));
+                        return (auxListTileBase[i].Equals(auxTileDefault) || auxListTileBase[i].Equals(auxTileTop));
+                    }
+                }
+
+                return false;
+            });
+
+            if (auxListCount != null)
+            {
+                if (auxListCount.Count >= 2)
+                {
+                    repeatedTileBase = true;
+                    break;
+                }
+            }
+        }
+
+        return repeatedTileBase;
+    }
+    private TileBase HasTwoOrMoreSort(Tilemap tilemap, int x, int y)
+    {
+        List<TileBase> auxListTileBase = new List<TileBase>();
+        TileBase repeatedTileBase = null;
+
+        auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x, y + 1, 0)));
+        auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x, y - 1, 0)));
+        auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x + 1, y, 0)));
+        auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x - 1, y, 0)));
+
+        for (int i = 0; i < auxListTileBase.Count; i++)
+        {
+            List<TileBase> auxListCount = auxListTileBase.FindAll((tile) =>
+            {
+                if (tile != null && auxListTileBase[i] != null)
+                {
+                    TileBaseGroup auxTileDefaultGroup = listTileBase.Find((tileAux) =>
+                    tileAux.tileDefault.Equals(tile)
+                    || tileAux.tileTop.Equals(tile));
+
+                    if (auxTileDefaultGroup != null)
+                    {
+                        TileBase auxTileDefault = auxTileDefaultGroup.tileDefault;
+                        TileBase auxTileTop = auxTileDefaultGroup.tileTop;
+                        return (auxListTileBase[i].Equals(auxTileDefault) || auxListTileBase[i].Equals(auxTileTop));
+                    }
+                }
+
+                return false;
+            });
+
+            if (auxListCount != null)
+            {
+                if (auxListCount.Count >= 2)
+                {
+                    repeatedTileBase = auxListTileBase[i];
+                    break;
+                }
+            }
+        }
+
+        int sort = Random.Range(0, 100);
+        if (sort >= 99)
+        {
+            return repeatedTileBase;
+        }
+        return null;
+    }
+
+    private TileBase HasThreeOrMore(Tilemap tilemap, int x, int y)
+    {
+        List<TileBase> auxListTileBase = new List<TileBase>();
+        TileBase repeatedTileBase = null;
+
+        auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x, y + 1, 0)));
+        auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x, y - 1, 0)));
+        auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x + 1, y, 0)));
+        auxListTileBase.Add(tilemap.GetTile(new Vector3Int(x - 1, y, 0)));
+
+        for (int i = 0; i < auxListTileBase.Count; i++)
+        {
+            List<TileBase> auxListCount = auxListTileBase.FindAll((tile) =>
+            {
+                if (tile != null && auxListTileBase[i] != null)
+                {
+                    TileBaseGroup auxTileDefaultGroup = listTileBase.Find((tileAux) =>
+                    tileAux.tileDefault.Equals(tile)
+                    || tileAux.tileTop.Equals(tile));
+
+                    if (auxTileDefaultGroup != null)
+                    {
+                        TileBase auxTileDefault = auxTileDefaultGroup.tileDefault;
+                        TileBase auxTileTop = auxTileDefaultGroup.tileTop;
+                        return (auxListTileBase[i].Equals(auxTileDefault) || auxListTileBase[i].Equals(auxTileTop));
                     }
                 }
 
