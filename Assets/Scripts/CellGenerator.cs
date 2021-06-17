@@ -25,31 +25,31 @@ public class CellGenerator : MonoBehaviour
 
     public List<TileBaseGroup> listTileBase = new List<TileBaseGroup>();
 
-    private bool run = false;
+    public int quantityGeneration;
+
+    public bool infinityGeneration;
 
     // Start is called before the first frame update
     void Start()
     {
         TileBaseSort();
-        //Smooth();
-        for (int i = 0; i < 10; i++)
+        if (!infinityGeneration)
         {
-            Smooth();
+            //Smooth();
+            for (int i = 0; i < quantityGeneration; i++)
+            {
+                Smooth();
+            }
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        /*if (Input.GetKeyDown(KeyCode.K))
+        if (infinityGeneration)
         {
             Smooth();
-        }*/
-        /*if (!run)
-        {
-            print("Rodando");
-            Smooth();
-        }*/
+        }
     }
 
     public void TileBaseSort()
@@ -72,7 +72,6 @@ public class CellGenerator : MonoBehaviour
 
     public void Smooth()
     {
-        run = true;
         for (int i = startPosition; i < height; i++)
         {
             for (int j = startPosition; j < width; j++)
@@ -139,7 +138,6 @@ public class CellGenerator : MonoBehaviour
                 tilemapAux.SetTile(new Vector3Int(j, i, 0), null);
             }
         }
-        run = false;
     }
 
     private bool IsAroundVoid(Tilemap tilemap, int x, int y)

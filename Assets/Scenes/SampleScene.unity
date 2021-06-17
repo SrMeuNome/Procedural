@@ -941,7 +941,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a51d8d5305519484a8724498742c34c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Size: 300
+  Size: 50
   MaxAltRelevo: 5
   MaxLarRelevo: 3
   MinAltRelevo: 1
@@ -964,7 +964,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7da19810f32d5334aa66162c151accfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 300
+  width: 100
   height: 3
   startPosition: 0
   tilemapBase: {fileID: 753392145}
@@ -972,3 +972,5 @@ MonoBehaviour:
   listTileBase:
   - tileTop: {fileID: 11400000, guid: 72323fdce7178594e988c119a5d3c4af, type: 2}
     tileDefault: {fileID: 11400000, guid: 4055815067239254d8915cebd43749b8, type: 2}
+  quantityGeneration: 100
+  infinityGeneration: 0
